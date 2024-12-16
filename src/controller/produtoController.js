@@ -2,6 +2,22 @@ import Produto from '../models/produto.js';
 
 class ProdutoController {
 
+  static async buscarProdutoPorId(req, res) {
+    const { id } = req.params;
+  
+    try {
+      const produto = await Produto.findById(id);
+  
+      if (!produto) {
+        return res.status(404).json({ message: 'Produto não encontrado' });
+      }
+
+      res.status(200).json(produto);
+    } catch (err) {
+      res.status(500).json({ message: 'Erro ao buscar produto por ID', error: err });
+    }
+  }
+   
   static async listarProdutos(req, res) {
     try {
       const produtoQuery = await Produto.find();
@@ -41,14 +57,14 @@ class ProdutoController {
   }
 
   static async criarProduto(req, res) {
-    const { nome, descricao, quantidade, imagem } = req.body;
+    const { nome, descricao, quantidade, foto } = req.body;
 
     try {
-      if (!nome || !descricao || !quantidade) {
+      if (!nome || !descricao || !quantidade || !foto) {
         return res.status(400).json({ message: 'Os campos "nome","descricao","quantidade" são obrigatórios' });
       } 
 
-      const novoProduto = new Produto({ nome, descricao, quantidade, imagem });
+      const novoProduto = new Produto({ nome, descricao, quantidade, foto });
       const produtoSalvo = await novoProduto.save();
 
       res
@@ -62,13 +78,13 @@ class ProdutoController {
   }
 
   static async atualizarProduto(req, res) {
-    const { nome, descricao, quantidade, imagem } = req.body;
+    const { nome, descricao, quantidade, foto } = req.body;
     const { id } = req.params;
 
     try {
       const produtoAtualizado = await Produto.findByIdAndUpdate(
         id,
-        { nome, descricao, quantidade, imagem },
+        { nome, descricao, quantidade, foto },
         { new: true }
       );
 
